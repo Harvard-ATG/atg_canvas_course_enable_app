@@ -1,7 +1,12 @@
 # ATG Canvas Course Enable APP
 This repository is used to enable apps in the canvas side nav for courses
 ## Usage
-You can use the jupyter notebook or the bash script to change the app visibility.
+You can use the jupyter notebook or the bash script to change the app visibility. You will need to run a SQL query and export the data into a CSV with `id`, `course_code`, `enrollment_term_id` as the columns.
+```sql
+select id, course_code, enrollment_term_id
+from canvas.courses as can,
+where can.tab_configuration like '%{"id":"context_external_tool_<tool id>","hidden":true}%' and enrollment_term_id='<term id>'
+```
 
 ### Bash script
 If you are opting to use the bash script you will will need to supply the bash command with the following:
