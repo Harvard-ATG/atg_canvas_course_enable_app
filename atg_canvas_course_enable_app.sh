@@ -29,36 +29,34 @@ if [ -z "$CSV_FILE" ] || [ -z "$URL" ] || [ -z "$API_KEY" ] || [ -z "$TOOL_ID" ]
 fi
 
 headers=1
-
+# port echos into output.log file
+exec 3>> output.log
 
 # Skip the headers if the headers variable is set to 1
+echo "starting process..."
 if [[ $headers -eq 1 ]]; then
-    tail -n +2 "$CSV_FILE" | while IFS=, read -r id course_code enrollment_term_id
+# use awk to skip the header line, NR stands for "Number of Records
+    awk 'NR > 1' "$CSV_FILE" | while IFS=, read -r id course_code enrollment_term_id
     do
+        timestamp=$(date "+%Y-%m-%d:%H:%M:%S")
         full_url="https://$URL/api/v1/courses/$id/tabs/context_external_tool_$TOOL_ID?hidden=false"
         # Process each column
         response=$(curl -s -X PUT "$full_url" \
             -H "Authorization: Bearer $API_KEY")
-
-        echo "Put URL:" $full_url
-        echo "id: $id"
-        echo "course_code: $course_code"
-        echo "enrollment_term_id: $enrollment_term_id"
-        echo "Response: $response"
-        echo "-------------------"
+        # send output to output log
+        echo "[$timestamp] Put URL: $full_url { id: $id, course_code: $course_code, enrollment_term_id: $enrollment_term_id, response: $response}" >&3
     done
+    echo "process completed..."
 else
     while IFS=, read -r id course_code enrollment_term_id
     do
+        timestamp=$(date "+%Y-%m-%d:%H:%M:%S")
         full_url="https://$URL/api/v1/courses/$id/tabs/context_external_tool_$TOOL_ID?hidden=false"
         # Process each column
         response=$(curl -s -X PUT "$full_url" \
             -H "Authorization: Bearer $API_KEY")
-        echo "Put URL:" $full_url
-        echo "id: $id"
-        echo "course_code: $course_code"
-        echo "enrollment_term_id: $enrollment_term_id"
-        echo "Response: $response"
-        echo "-------------------"
+        # send output to output log
+        echo "[$timestamp] Put URL: $full_url { id: $id, course_code: $course_code, enrollment_term_id: $enrollment_term_id, response: $response}" >&3
     done < "$CSV_FILE"
+    echo "process completed..."
 fi
