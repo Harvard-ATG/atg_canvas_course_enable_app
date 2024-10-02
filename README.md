@@ -4,7 +4,7 @@ This repository is used to enable apps in the canvas side nav for courses
 You can use the jupyter notebook or the bash script to change the app visibility. You will need to run a SQL query and export the data into a CSV with `id`, `course_code`, `enrollment_term_id` as the columns.
 ```sql
 select id, course_code, enrollment_term_id
-from canvas.courses as can,
+from canvas.courses can,
 where can.tab_configuration like '%{"id":"context_external_tool_<tool id>","hidden":true}%' and enrollment_term_id='<term id>'
 ```
 
